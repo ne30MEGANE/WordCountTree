@@ -1,12 +1,14 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <crtdbg.h>
+#include <string.h>
 #include "data_type.h"
 
 extern char Kadai_Sentence[];
 
 // プロトタイプ宣言
 struct tnode* addNode(struct tnode* root, char* word);
+struct tnode* nodeSetting(char* word);
 void cleanTree(struct tnode* root);
 void printTree(struct tnode* root);
 
@@ -17,33 +19,76 @@ int main()
 
     //printf("%s\n", Kadai_Sentence); // for debug
 
-    struct tnode* r2 = malloc(sizeof(struct tnode));
-    struct tnode* l2 = malloc(sizeof(struct tnode));
-    struct tnode* l1 = malloc(sizeof(struct tnode));
-    struct tnode* top = malloc(sizeof(struct tnode));
 
-    if (r2 && l2 && l1 && top) {
-        r2->word = "BB"; r2->count = 1; r2->left = NULL; r2->right = NULL;
-        l2->word = "A"; l2->count = 0; l2->left = NULL; l2->right = NULL;
-        l1->word = "B"; l1->count = 1, l1->left = l2; l1->right = r2;
-        top->word = "C"; top->count = 5; top->left = l1; top->right = NULL;
+    // 最初のノードを定義
+    char* context = NULL; // for strtok_s
+    char* token = strtok_s(Kadai_Sentence, " ", &context);
+    struct tnode* tree = addNode(NULL, token);
 
-        printf("%s \t%p\n", top->word, top);
-        printf("%s \t%p\n", l1->word, l1);
-        printf("%s \t%p\n", l2->word, l2);
-        printf("%s \t%p\n", r2->word, r2);
+    // 残りのノードを追加
+    while (token != NULL) {
+        token = strtok_s(NULL, " ", &context);
+        if(token != NULL) addNode(tree, token);
     }
 
-    printTree(top);
+    // 出力
+    printTree(tree);
+    //printTree_debug(tree, 0);
 
-    cleanTree(top);
+    // メモリ解放
+    cleanTree(tree);
 
 }
 
 // 二分木構成
-struct tnode* addNode(struct tnode *root, char *word) {
-    struct tnode* node = malloc(sizeof(struct tnode));
+struct tnode* addNode(struct tnode* root, char* word) { // 追加先二分木(根のアドレスで指定)・追加するワード
+    // 最初のノード
+    if(root == NULL){
+        root = nodeSetting(word);
+        return root;
+    }
 
+    // wordを比較してノードを追加
+    while (1) {
+        int cmp = strcmp(root->word, word);
+        if (cmp == 0){ // 同じワード
+            root->count++;
+            break;
+        }
+        else if (cmp > 0) { // 左に追加
+            if (root->left == NULL) { // 開いてるとき
+                root->left = nodeSetting(word); // ノード追加・設定
+                break;
+            }
+            else { // 開いてないとき
+                root = root->left; // 次のノードに移る
+            }
+        }
+        else if (cmp < 0) { // 右に追加
+            if (root->right == NULL) {
+                root->right = nodeSetting(word);
+                break;
+            }
+            else {
+                root = root->right;
+            }
+        }
+
+    }
+
+    return root;
+}
+
+// ノードメモリ確保・初期化
+struct tnode* nodeSetting(char* word) {
+    struct tnode* node = malloc(sizeof(struct tnode));
+    if (node) {
+        node->word = word;
+        node->count = 1;
+        node->left = NULL;
+        node->right = NULL;
+    }
+    return node;
 }
 
 // メモリ解放
