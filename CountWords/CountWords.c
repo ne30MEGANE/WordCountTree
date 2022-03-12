@@ -11,6 +11,7 @@ struct tnode* addNode(struct tnode* root, char* word);
 struct tnode* nodeSetting(char* word);
 void cleanTree(struct tnode* root);
 void printTree(struct tnode* root);
+void printTree_debug(struct tnode* root, int deep);
 
 int main()
 {
@@ -103,9 +104,22 @@ void cleanTree(struct tnode* root) {
 }
 
 // 二分木の内容を出力
-void printTree(struct tnode *root) {
+void printTree(struct tnode* root) {
     if (root == NULL) return;
     printf("%4d %s\n", root->count, root->word);
     printTree(root->left);
     printTree(root->right);
+}
+
+// デバッグ用、深さ表示ｱﾘ出力
+void printTree_debug(struct tnode* root, int deep) {
+    if (root == NULL) return;
+
+    printTree_debug(root->right, deep + 1);
+    for (int i = 0; i < deep; i++) printf("--");
+    printf("%d %s\n",root->count, root->word);
+
+    printTree_debug(root->left, deep + 1);
+    deep++;
+
 }
