@@ -34,6 +34,8 @@ int main()
         printf("%s \t%p\n", r2->word, r2);
     }
 
+    printTree(top);
+
     cleanTree(top);
 
 }
@@ -57,5 +59,8 @@ void cleanTree(struct tnode* root) {
 
 // 二分木の内容を出力
 void printTree(struct tnode *root) {
-
+    if (root == NULL) return;
+    printf("%4d %s\n", root->count, root->word);
+    printTree(root->left);
+    printTree(root->right);
 }
